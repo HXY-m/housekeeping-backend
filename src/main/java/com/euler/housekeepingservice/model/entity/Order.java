@@ -62,6 +62,19 @@ public class Order implements Serializable {
     @TableField("total_amount")
     private BigDecimal totalAmount;
 
+    @ApiModelProperty("服务联系人(快照)")
+    @TableField("contact_name")
+    private String contactName;
+
+    @ApiModelProperty("联系电话(快照)")
+    @TableField("contact_phone")
+    private String contactPhone;
+
+    @ApiModelProperty("详细服务地址(快照)")
+    @TableField("service_address")
+    private String serviceAddress;
+
+
     @ApiModelProperty("订单完成时间")
     @TableField("complete_time")
     private LocalDateTime completeTime;

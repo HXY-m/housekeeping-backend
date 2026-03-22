@@ -34,6 +34,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         order.setCustomerId(customerId);
         order.setServiceId(dto.getServiceId());
         order.setProfessionalId(dto.getProfessionalId());
+        order.setTotalAmount(dto.getTotalAmount());
+        order.setContactName(dto.getContactName());
+        order.setContactPhone(dto.getContactPhone());
+        order.setServiceAddress(dto.getServiceAddress());
 
         order.setOrderStatus((byte) 10); // 10-待接单
         order.setRequestTime(LocalDateTime.now());
@@ -61,7 +65,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         }
 
         // 将状态改为 50 (已取消)
-        order.setOrderStatus((byte)50);
+        order.setOrderStatus((byte) 50);
         this.updateById(order);
     }
 
