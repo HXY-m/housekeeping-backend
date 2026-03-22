@@ -23,6 +23,22 @@ public class ProfessionalController {
     @Autowired
     private ProfessionalService professionalService;
 
+    // ==========================================
+    // 官网公开 API (免登录)
+    // ==========================================
+
+    /**
+     * 官网首页：获取推荐的金牌师傅列表 (取评分最高的4位)
+     */
+    @GetMapping("/public/recommend")
+    public Result<List<Professional>> getRecommendProfessionals() {
+        List<Professional> list = professionalService.list(new LambdaQueryWrapper<Professional>()
+                .eq(Professional::getAuditStatus, 1) // 必须是认证通过的
+                .orderByDesc(Professional::getRating) // 评分由高到低
+                .last("LIMIT 4")); // 只取前4名
+        return Result.success(list);
+    }
+
     /**
      * 获取我的师傅资料
      */
