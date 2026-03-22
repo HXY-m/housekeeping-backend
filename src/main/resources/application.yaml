@@ -17,19 +17,19 @@ spring:
     password: 123456
 
   # Redis 缓存配置
-  data:
-    redis:
-      host: 127.0.0.1
-      port: 6379
-      password: # 如果本地 Redis 没密码则留空
-      database: 0
-      timeout: 10000ms
-      lettuce:
-        pool:
-          max-active: 8
-          max-wait: -1ms
-          max-idle: 8
-          min-idle: 0
+#  data:
+#    redis:
+#      host: 127.0.0.1
+#      port: 6379
+#      password: # 如果本地 Redis 没密码则留空
+#      database: 0
+#      timeout: 10000ms
+#      lettuce:
+#        pool:
+#          max-active: 8
+#          max-wait: -1ms
+#          max-idle: 8
+#          min-idle: 0
 
 # MyBatis-Plus 增强配置
 mybatis-plus:

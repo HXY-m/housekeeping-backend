@@ -160,4 +160,30 @@ public class OrderController {
                 .orderByDesc(Order::getCreateTime));
         return Result.success(list);
     }
+
+    // ==========================================
+    // 管理员专属 API (上帝视角)
+    // ==========================================
+
+    /**
+     * 获取全平台所有订单 (按时间倒序)
+     */
+    @GetMapping("/admin/all")
+    public Result<List<Order>> getAllOrdersForAdmin() {
+        List<Order> list = orderService.list(new LambdaQueryWrapper<Order>()
+                .orderByDesc(Order::getCreateTime));
+        return Result.success(list);
+    }
+
+    /**
+     * 管理员强制删除订单 (物理/逻辑删除取决于 MyBatis-Plus 配置)
+     */
+    @DeleteMapping("/admin/{id}")
+    public Result<?> deleteOrderAsAdmin(@PathVariable("id") Long id) {
+        boolean success = orderService.removeById(id);
+        if (success) {
+            return Result.success("订单已成功删除");
+        }
+        return Result.error(500, "删除失败，订单可能不存在");
+    }
 }

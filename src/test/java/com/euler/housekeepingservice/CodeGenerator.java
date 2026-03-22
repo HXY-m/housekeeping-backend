@@ -42,7 +42,9 @@ public class CodeGenerator {
                 // 4. 策略配置 (核心)
                 .strategyConfig(builder -> {
                     // 需要生成的表名集合
-                    builder.addInclude("sys_user", "biz_customer", "biz_professional", "biz_service", "biz_order")
+//                    builder.addInclude("sys_user", "biz_customer", "biz_professional", "biz_service", "biz_order")
+//                            .addTablePrefix("sys_", "biz_") // 过滤掉表前缀
+                    builder.addInclude("biz_address")
                             .addTablePrefix("sys_", "biz_") // 过滤掉表前缀
 
                             // 实体类(Entity)策略配置

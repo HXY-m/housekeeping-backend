@@ -1,18 +1,14 @@
 package com.euler.housekeepingservice.model.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -61,6 +57,10 @@ public class Order implements Serializable {
     @ApiModelProperty("师傅接单/拒单时间")
     @TableField("accept_time")
     private LocalDateTime acceptTime;
+
+    @ApiModelProperty("总金额")
+    @TableField("total_amount")
+    private BigDecimal totalAmount;
 
     @ApiModelProperty("订单完成时间")
     @TableField("complete_time")
