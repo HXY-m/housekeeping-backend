@@ -53,6 +53,18 @@ public class ProfessionalController {
         Professional exist = professionalService.getOne(new LambdaQueryWrapper<Professional>().eq(Professional::getUserId, professional.getUserId()));
         if (exist != null) {
             professional.setId(exist.getId());
+
+            // 【核心修复】：如果师傅当前是"已驳回(2)"状态，他重新提交修改后，必须重置为"待审核(0)"
+            if (exist.getAuditStatus() != null && exist.getAuditStatus() == 2) {
+                professional.setAuditStatus((byte) 0);
+            }
+            // (注意：如果前端传来了 auditStatus，为了防止越权，强制覆盖成后端的逻辑)
+            // 甚至更严谨的做法是：不允许前端修改审核状态和评分
+            if (professional.getAuditStatus() != null && professional.getAuditStatus() == 1) {
+                // 防止恶意绕过审核直接变 1
+                professional.setAuditStatus(exist.getAuditStatus() == 2 ? (byte)0 : exist.getAuditStatus());
+            }
+
             professionalService.updateById(professional);
         } else {
             // 默认新入驻的师傅是待审核状态 (0)，评分为 5.0
@@ -60,6 +72,38 @@ public class ProfessionalController {
             professional.setRating(new java.math.BigDecimal("5.0"));
             professionalService.save(professional);
         }
-        return Result.success("师傅资料保存成功");
+        return Result.success("师傅资料已提交，等待平台审核");
+    }
+
+    // ==========================================
+    // 管理员专属 API (资质审核)
+    // ==========================================
+
+    /**
+     * 管理员获取所有师傅的资质档案 (待审核状态优先排在最前面)
+     */
+    @GetMapping("/admin/list")
+    public Result<List<Professional>> getAllProfessionals() {
+        List<Professional> list = professionalService.list(new LambdaQueryWrapper<Professional>()
+                .orderByAsc(Professional::getAuditStatus) // 0-待审排在最上面
+                .orderByDesc(Professional::getCreateTime));
+        return Result.success(list);
+    }
+
+    /**
+     * 管理员审批师傅资质
+     * status: 1-审核通过, 2-审核拒绝
+     */
+    @PatchMapping("/admin/audit/{id}")
+    public Result<?> auditProfessional(@PathVariable("id") Long id, @RequestParam("status") Byte status) {
+        Professional professional = new Professional();
+        professional.setId(id);
+        professional.setAuditStatus(status);
+        boolean success = professionalService.updateById(professional);
+
+        if (success) {
+            return Result.success(status == 1 ? "已通过该师傅的资质审核" : "已驳回该师傅的资质申请");
+        }
+        return Result.error(500, "审批操作失败");
     }
 }

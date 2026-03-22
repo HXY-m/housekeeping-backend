@@ -42,7 +42,7 @@ public class UploadController {
 
             // 4. 拼接能让前端访问的 URL (假设后端跑在 8080 端口)
             // 注意：真实线上环境这里应该配置为域名
-            String fileUrl = "http://localhost:8080/uploads/" + newFileName;
+            String fileUrl = "http://localhost:8080/api/uploads/" + newFileName;
 
             return Result.success(fileUrl);
 
