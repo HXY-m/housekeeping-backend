@@ -28,39 +28,26 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         order.setContactPhone(dto.getContactPhone());
         order.setServiceAddress(dto.getServiceAddress());
         order.setOrderStatus((byte) 10);
+        order.setPaymentStatus((byte) 0);
         order.setRequestTime(LocalDateTime.now());
         this.save(order);
         return order;
     }
 
     @Override
-    public void cancelOrder(Long orderId, Long customerId) {
-        Order order = this.getById(orderId);
-        if (order == null) {
-            throw new BizException("璁㈠崟涓嶅瓨鍦?");
-        }
-        if (!order.getCustomerId().equals(customerId)) {
-            throw new BizException("鏃犳潈鎿嶄綔浠栦汉鐨勮鍗?");
-        }
-        if (order.getOrderStatus() != 10) {
-            throw new BizException("褰撳墠鐘舵€佹棤娉曞彇娑堣鍗?");
-        }
-        order.setOrderStatus((byte) 50);
-        this.updateById(order);
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
     public void processOrder(Long orderId, Long professionalId, Integer actionStatus) {
         Order order = this.getById(orderId);
         if (order == null) {
-            throw new BizException("璁㈠崟涓嶅瓨鍦?");
+            throw new BizException("订单不存在");
         }
         if (order.getOrderStatus() != 10) {
-            throw new BizException("褰撳墠璁㈠崟鐘舵€佷笉鍏佽鎺ュ崟/鎷掑崟");
+            throw new BizException("当前订单状态不允许接单处理");
+        }
+        if (order.getPaymentStatus() == null || order.getPaymentStatus() != 1) {
+            throw new BizException("订单未支付，不能接单");
         }
         if (order.getProfessionalId() != null && !order.getProfessionalId().equals(professionalId)) {
-            throw new BizException("鏃犳潈鎿嶄綔浠栦汉鐨勬淳鍗?");
+            throw new BizException("该订单已被其他服务人员锁定");
         }
         order.setProfessionalId(professionalId);
         order.setOrderStatus(actionStatus.byteValue());
@@ -73,15 +60,51 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     public void completeOrder(Long orderId, Long customerId, OrderCompleteDTO dto) {
         Order order = this.getById(orderId);
         if (order == null || !order.getCustomerId().equals(customerId)) {
-            throw new BizException("鏃犳潈鎿嶄綔姝よ鍗?");
+            throw new BizException("无权完成该订单");
         }
         if (order.getOrderStatus() != 35) {
-            throw new BizException("褰撳墠璁㈠崟灏氭湭杈惧埌鍙獙鏀剁姸鎬?");
+            throw new BizException("当前订单还未进入待验收状态");
         }
         order.setOrderStatus((byte) 40);
         order.setCompleteTime(LocalDateTime.now());
         order.setRatingScore(dto.getRatingScore());
         order.setCustomerRemarks(dto.getCustomerRemarks());
+        this.updateById(order);
+    }
+
+    @Override
+    public void cancelOrder(Long orderId, Long customerId) {
+        Order order = this.getById(orderId);
+        if (order == null) {
+            throw new BizException("订单不存在");
+        }
+        if (!order.getCustomerId().equals(customerId)) {
+            throw new BizException("无权取消该订单");
+        }
+        if (order.getOrderStatus() != 10) {
+            throw new BizException("当前订单状态不允许取消");
+        }
+        order.setOrderStatus((byte) 50);
+        this.updateById(order);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void payOrder(Long orderId, Long customerId, String paymentMethod) {
+        Order order = this.getById(orderId);
+        if (order == null || !order.getCustomerId().equals(customerId)) {
+            throw new BizException("无权支付该订单");
+        }
+        if (order.getPaymentStatus() != null && order.getPaymentStatus() == 1) {
+            throw new BizException("该订单已支付");
+        }
+        if (order.getOrderStatus() == 30 || order.getOrderStatus() == 50) {
+            throw new BizException("当前订单状态不允许支付");
+        }
+        order.setPaymentStatus((byte) 1);
+        order.setPaymentMethod(paymentMethod);
+        order.setPaymentNo("PAY-" + IdUtil.getSnowflakeNextIdStr());
+        order.setPaymentTime(LocalDateTime.now());
         this.updateById(order);
     }
 }

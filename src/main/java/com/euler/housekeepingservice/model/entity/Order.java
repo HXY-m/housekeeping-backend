@@ -62,6 +62,22 @@ public class Order implements Serializable {
     @TableField("total_amount")
     private BigDecimal totalAmount;
 
+    @ApiModelProperty("支付状态 0-未支付 1-已支付")
+    @TableField("payment_status")
+    private Byte paymentStatus;
+
+    @ApiModelProperty("支付方式")
+    @TableField("payment_method")
+    private String paymentMethod;
+
+    @ApiModelProperty("支付流水号")
+    @TableField("payment_no")
+    private String paymentNo;
+
+    @ApiModelProperty("支付时间")
+    @TableField("payment_time")
+    private LocalDateTime paymentTime;
+
     @ApiModelProperty("服务联系人(快照)")
     @TableField("contact_name")
     private String contactName;

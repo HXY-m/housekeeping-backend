@@ -7,6 +7,7 @@ import com.euler.housekeepingservice.model.dto.AfterSaleCreateDTO;
 import com.euler.housekeepingservice.model.dto.AfterSaleHandleDTO;
 import com.euler.housekeepingservice.model.entity.AfterSale;
 import com.euler.housekeepingservice.service.AfterSaleService;
+import com.euler.housekeepingservice.service.OperationLogService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,16 +17,20 @@ import java.util.List;
 @RequestMapping("/after-sale")
 public class AfterSaleController {
     private final AfterSaleService afterSaleService;
+    private final OperationLogService operationLogService;
 
-    public AfterSaleController(AfterSaleService afterSaleService) {
+    public AfterSaleController(AfterSaleService afterSaleService, OperationLogService operationLogService) {
         this.afterSaleService = afterSaleService;
+        this.operationLogService = operationLogService;
     }
 
     @PostMapping
     public Result<AfterSale> createAfterSale(@Valid @RequestBody AfterSaleCreateDTO dto) {
         SecurityUtils.requireRole(2);
         Long customerId = SecurityUtils.getUserId();
-        return Result.success(afterSaleService.createAfterSale(customerId, dto));
+        AfterSale afterSale = afterSaleService.createAfterSale(customerId, dto);
+        operationLogService.log("AFTER_SALE", "CREATE", customerId, SecurityUtils.getRole(), afterSale.getId(), "Customer created after-sale ticket");
+        return Result.success(afterSale);
     }
 
     @GetMapping
@@ -47,6 +52,7 @@ public class AfterSaleController {
     public Result<?> handleAfterSale(@PathVariable Long id, @Valid @RequestBody AfterSaleHandleDTO dto) {
         SecurityUtils.requireRole(1);
         afterSaleService.handleAfterSale(id, dto);
-        return Result.success("鍞悗璁板綍澶勭悊鎴愬姛");
+        operationLogService.log("AFTER_SALE", "HANDLE", SecurityUtils.getUserId(), SecurityUtils.getRole(), id, "Admin handled after-sale ticket");
+        return Result.success("After-sale handled");
     }
 }

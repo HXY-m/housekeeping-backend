@@ -13,4 +13,6 @@ public interface OrderService extends IService<Order> {
     void completeOrder(Long orderId, Long customerId, OrderCompleteDTO dto);
 
     void cancelOrder(Long orderId, Long customerId);
+
+    void payOrder(Long orderId, Long customerId, String paymentMethod);
 }
