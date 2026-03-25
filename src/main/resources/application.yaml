@@ -1,46 +1,28 @@
 server:
   port: 8080
   servlet:
-    context-path: /api # 统一 API 前缀，方便后期 Nginx 代理与前后端分离部署
+    context-path: /api
+
 spring:
   application:
     name: housekeeping-service
   profiles:
-    active: dev # 激活开发环境配置
-
-  # MySQL 8.0 数据库配置
+    active: dev
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    # 注意修改为你的数据库名、用户名和密码
     url: jdbc:mysql://127.0.0.1:3306/housekeeping_service?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&verifyServerCertificate=false
     username: root
     password: 123456
 
-  # Redis 缓存配置
-#  data:
-#    redis:
-#      host: 127.0.0.1
-#      port: 6379
-#      password: # 如果本地 Redis 没密码则留空
-#      database: 0
-#      timeout: 10000ms
-#      lettuce:
-#        pool:
-#          max-active: 8
-#          max-wait: -1ms
-#          max-idle: 8
-#          min-idle: 0
-
-# MyBatis-Plus 增强配置
 mybatis-plus:
-  mapper-locations: classpath*:/mapper/**/*.xml # Mapper XML 文件位置
-  type-aliases-package: com.euler.housekeepingservice.model.entity # 实体类包扫描路径
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.euler.housekeepingservice.model.entity
   global-config:
     db-config:
-      id-type: auto # 全局主键策略：数据库自增
-      logic-delete-field: isDeleted # 全局逻辑删除字段名
-      logic-delete-value: 1 # 逻辑已删除值
-      logic-not-delete-value: 0 # 逻辑未删除值
+      id-type: auto
+      logic-delete-field: isDeleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
   configuration:
-    map-underscore-to-camel-case: true # 开启驼峰命名自动映射 (如 create_time 映射到 createTime)
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 开发环境下打印 SQL 日志，方便排错
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

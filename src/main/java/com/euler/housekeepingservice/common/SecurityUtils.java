@@ -3,15 +3,9 @@ package com.euler.housekeepingservice.common;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-/**
- * Spring Security 安全上下文工具类
- */
-public class SecurityUtils {
+import java.util.Arrays;
 
-    /**
-     * 获取当前登录用户的 ID
-     * (由于我们在 JwtAuthenticationFilter 中将 userId 存入了 Principal，这里直接取出强转即可)
-     */
+public class SecurityUtils {
     public static Long getUserId() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -19,8 +13,25 @@ public class SecurityUtils {
                 return (Long) authentication.getPrincipal();
             }
         } catch (Exception e) {
-            throw new BizException(401, "获取当前登录用户信息失败，请重新登录");
+            throw new BizException(401, "鑾峰彇褰撳墠鐧诲綍鐢ㄦ埛淇℃伅澶辫触锛岃閲嶆柊鐧诲綍");
         }
-        throw new BizException(401, "未授权的访问");
+        throw new BizException(401, "鏈巿鏉冪殑璁块棶");
+    }
+
+    public static Integer getRole() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Object details = authentication == null ? null : authentication.getDetails();
+        if (details instanceof Integer role) {
+            return role;
+        }
+        throw new BizException(401, "鏈巿鏉冪殑璁块棶");
+    }
+
+    public static void requireRole(int... roles) {
+        Integer currentRole = getRole();
+        boolean matched = Arrays.stream(roles).anyMatch(role -> role == currentRole);
+        if (!matched) {
+            throw new BizException(403, "鏃犳潈鎿嶄綔");
+        }
     }
 }
